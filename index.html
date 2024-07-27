@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Flying Particles with Blur and Motion Effects</title>
+    <style>
+        body { 
+            margin: 0; 
+            overflow: hidden; 
+            background-color: black;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: 'Press Start 2P', cursive;
+        }
+        #title {
+            position: absolute;
+            top: 13%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 4em;
+        }
+        #randomNumberContainer {
+            position: absolute;
+            top: 30%;
+            left: 50%;
+            transform: translate(-50%, -10%);
+            text-align: center;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        #generateFiveButton, #generateSixButton, #generateSevenButton {
+            background-color: rgba(0, 0, 0, 0.5);
+            color: rgba(255, 255, 255, 0.8);
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            padding: 15px 30px;
+            text-align: center;
+            display: inline-block;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Press Start 2P', cursive;
+            margin: 10px;
+            border-radius: 10px;
+        }
+        #generateFiveButton:hover, #generateSixButton:hover, #generateSevenButton:hover {
+            background-color: rgba(255, 255, 255, 0.8);
+            color: rgba(0, 0, 0, 0.8);
+        }
+        #generateFiveButton:active, #generateSixButton:active, #generateSevenButton:active {
+            transform: scale(0.95);
+        }
+        #randomNumberDisplay {
+            margin-top: 20px;
+            font-size: 24px;
+        }
+        #readmeButton, #donateButton {
+            background-color: rgba(0, 0, 0, 0.5);
+            color: rgba(255, 255, 255, 0.8);
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            padding: 10px 20px;
+            text-align: center;
+            display: inline-block;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Press Start 2P', cursive;
+            margin: 10px;
+            border-radius: 10px;
+        }
+        #readmeButton:hover, #donateButton:hover {
+            background-color: rgba(255, 255, 255, 0.8);
+            color: rgba(0, 0, 0, 0.8);
+        }
+        #readmeButton:active, #donateButton:active {
+            transform: scale(0.95);
+        }
+        #readmeModal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            color: white;
+            font-family: 'Press Start 2P', cursive;
+            padding: 20px;
+            overflow-y: auto;
+            text-align: center;
+            z-index: 1000;
+        }
+        #readmeContent {
+            max-width: 800px;
+            margin: 0 auto;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        #closeReadme {
+            background-color: rgba(0, 0, 0, 0.5);
+            color: rgba(255, 255, 255, 0.8);
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            padding: 10px 20px;
+            text-align: center;
+            display: inline-block;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Press Start 2P', cursive;
+            margin: 10px;
+            border-radius: 10px;
+        }
+        #closeReadme:hover {
+            background-color: rgba(255, 255, 255, 0.8);
+            color: rgba(0, 0, 0, 0.8);
+        }
+        #closeReadme:active {
+            transform: scale(0.95);
+        }
+        #footer {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 12px;
+        }
+        canvas { 
+            display: block;
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <!--
+    MIT License
+
+Copyright (c) 2024 Ihor Kolomiichuk
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+    -->
+</head>
+<body>
+    <div id="title">Jackpot Boost</div>
+    
+    <div id="randomNumberContainer">
+        <button id="generateFiveButton">Generate 5 from 49</button>
+        <button id="generateSixButton">Generate 6 from 49</button>
+        <button id="generateSevenButton">Generate 7 from 50</button>
+        <div id="randomNumberDisplay"></div>
+        <button id="readmeButton">README</button>
+        <button id="donateButton">Donate</button>
+    </div>
+
+    <div id="readmeModal">
+        <div id="readmeContent">
+            <!-- README.md content will be loaded here -->
+        </div>
+        <button id="closeReadme">Back</button>
+    </div>
+
+    <div id="footer">Copyright (c) 2024 Ihor Kolomiichuk</div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/EffectComposer.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/RenderPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/ShaderPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/HorizontalBlurShader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/VerticalBlurShader.js"></script>
+    <script>
+        let scene, camera, renderer, particles, composer;
+
+        function init() {
+            scene = new THREE.Scene();
+
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.z = 5;
+
+            renderer = new THREE.WebGLRenderer();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.body.appendChild(renderer.domElement);
+
+            composer = new THREE.EffectComposer(renderer);
+            const renderPass = new THREE.RenderPass(scene, camera);
+            composer.addPass(renderPass);
+
+            const hBlur = new THREE.ShaderPass(THREE.HorizontalBlurShader);
+            const vBlur = new THREE.ShaderPass(THREE.VerticalBlurShader);
+            hBlur.uniforms['h'].value = 0.001;
+            vBlur.uniforms['v'].value = 0.001;
+            composer.addPass(hBlur);
+            composer.addPass(vBlur);
+
+            generateParticles();
+            animate();
+        }
+
+        function generateParticles() {
+            if (particles) {
+                scene.remove(particles);
+            }
+
+            const particleCount = 1000;
+            const particlesGeometry = new THREE.BufferGeometry();
+            const positions = new Float32Array(particleCount * 3);
+            const velocities = new Float32Array(particleCount * 3);
+
+            for (let i = 0; i < particleCount; i++) {
+                positions[i * 3] = (Math.random() - 0.5) * 10;
+                positions[i * 3 + 1] = (Math.random() - 0.5) * 10;
+                positions[i * 3 + 2] = (Math.random() - 0.5) * 10;
+
+                velocities[i * 3] = 0;
+                velocities[i * 3 + 1] = 0;
+                velocities[i * 3 + 2] = 0.02 + Math.random() * 0.03;
+            }
+
+            particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            particlesGeometry.setAttribute('velocity', new THREE.BufferAttribute(velocities, 3));
+
+            const particlesMaterial = new THREE.PointsMaterial({
+                color: 0xffffff,
+                size: 0.05,
+            });
+
+            particles = new THREE.Points(particlesGeometry, particlesMaterial);
+            scene.add(particles);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            const positions = particles.geometry.attributes.position.array;
+            const velocities = particles.geometry.attributes.velocity.array;
+
+            for (let i = 0; i < positions.length / 3; i++) {
+                positions[i * 3 + 2] += velocities[i * 3 + 2];
+
+                if (positions[i * 3 + 2] > 5) {
+                    positions[i * 3 + 2] = -5;
+                }
+            }
+
+            particles.geometry.attributes.position.needsUpdate = true;
+
+            composer.render();
+        }
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            composer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        function generateRandomNumbers(numCount, maxNumber) {
+            const PI_CONSTANT = Math.PI;
+            const date = new Date();
+            const formattedDate = parseInt(`${date.getDate()}${date.getMonth() + 1}${date.getFullYear().toString().slice(-2)}`);
+            const product = PI_CONSTANT * formattedDate;
+            const divisor = maxNumber * numCount;
+            const baseNumber = Math.floor(product / divisor);
+            
+            let randomNumbers = [];
+            while (randomNumbers.length < numCount) {
+                const randomNum = Math.floor((baseNumber * Math.random()) % maxNumber) + 1;
+                if (!randomNumbers.includes(randomNum)) {
+                    randomNumbers.push(randomNum);
+                }
+            }
+
+            randomNumbers.sort((a, b) => a - b);
+
+            const randomNumbersElement = document.getElementById('randomNumberDisplay');
+            randomNumbersElement.innerText = randomNumbers.join(', ');
+        }
+
+        document.getElementById('generateFiveButton').addEventListener('click', () => generateRandomNumbers(5, 49));
+        document.getElementById('generateSixButton').addEventListener('click', () => generateRandomNumbers(6, 49));
+        document.getElementById('generateSevenButton').addEventListener('click', () => generateRandomNumbers(7, 50));
+
+        document.getElementById('readmeButton').addEventListener('click', () => {
+            document.getElementById('readmeContent').innerText = `
+Introducing Jackpot Boost!
+
+Are you tired of traditional random number generators? Jackpot Boost offers a groundbreaking method for generating random numbers using a unique constant derived from the product of Pi and the current date. This innovative approach ensures that no two sets of numbers are ever the same, making it perfect for lottery selections or any other purpose requiring true randomness.
+
+Key Features:
+- Unique Constant: Utilizes a specially calculated constant with no analogs in existing methods.
+- True Randomness: Generates completely unique sets of random numbers every time.
+- User-Friendly: Simple interface with easy-to-use buttons for generating 5, 6, or 7 numbers.
+
+How It Works:
+Our generator uses the current date and the mathematical constant Pi to create a base number. This base is then used to produce a set of random numbers, ensuring a truly random and unique result each time.
+
+Free to Use:
+This powerful tool is absolutely free! However, if you appreciate the innovation and find it useful, consider making a donation. If you win using Jackpot Boost, we kindly ask that you donate a small percentage of your winnings to help us continue developing this project.
+
+Try it now and experience the future of random number generation!
+            `;
+            document.getElementById('readmeModal').style.display = 'block';
+        });
+
+        document.getElementById('closeReadme').addEventListener('click', () => {
+            document.getElementById('readmeModal').style.display = 'none';
+        });
+
+        document.getElementById('donateButton').addEventListener('click', () => {
+            window.open('https://www.paypal.com/donate/?business=PC93D4AHA54CQ&no_recurring=0&item_name=Hello+Friend%2C%0APlease+donate+to+support+the+development+of+my+project+Jackpot+Boost.+Thank+you+for+your+support%21%0A&currency_code=CAD', '_blank');
+        });
+
+        init();
+    </script>
+</body>
+</html>
